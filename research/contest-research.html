@@ -1,0 +1,980 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>차량용 앱 개발 공모전 리서치</title>
+<meta name="description" content="현대자동차그룹 차량용 앱 개발 공모전과 Pleos Playground 개발 범위를 정리한 비공식 리서치 문서">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23080d14'/%3E%3Cpath d='M4 23c7-6 10 2 16-4s6-8 8-8' fill='none' stroke='%234f9bd9' stroke-width='2.6' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+:root{
+  --bg:#f4f5f7; --surface:#ffffff; --surface-2:#eceff3; --ink:#10161d; --ink-2:#3f4856; --ink-3:#56606f;
+  --line:#dce1e8; --accent:#0f4c81; --accent-ink:#ffffff; --accent-soft:#e2edf7;
+  --ok:#086445; --ok-soft:#e1f4ec; --warn:#8a5000; --warn-soft:#fdf0d8; --bad:#b3261e; --bad-soft:#fbe6e4;
+  --mute:#4f5968; --mute-soft:#e7ebf0;
+  --hero-1:#080d14; --hero-2:#10202f; --hero-ink:#f2f6fa; --hero-sub:#b4c1cf;
+  --hero-glass:#16202b; --hero-glass-line:#2b3947;
+  --hero-line-a:#4f9bd9; --hero-line-b:#f2b45a;
+  --tap:44px;
+  --radius:14px; --shadow:0 1px 2px rgba(16,22,29,.05),0 8px 24px rgba(16,22,29,.05);
+  --font:"Pretendard Variable",Pretendard,"Apple SD Gothic Neo","Malgun Gothic","Noto Sans KR",system-ui,sans-serif;
+  --mono:ui-monospace,"Cascadia Code",Consolas,"D2Coding",monospace;
+}
+@media (prefers-color-scheme:dark){
+  :root{
+    --bg:#0b1016; --surface:#131a22; --surface-2:#1a232e; --ink:#eaf0f6; --ink-2:#b7c2cf; --ink-3:#93a0af;
+    --line:#27323f; --accent:#86bdf0; --accent-ink:#08121c; --accent-soft:#14304a;
+    --ok:#5fd4a6; --ok-soft:#12332a; --warn:#f0b65a; --warn-soft:#3a2c10; --bad:#ff8f86; --bad-soft:#3d1a18;
+    --mute:#a6b2c0; --mute-soft:#202a36;
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.25);
+  }
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:72px}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font);font-size:16px;line-height:1.7;word-break:keep-all;overflow-wrap:anywhere;-webkit-font-smoothing:antialiased}
+a{color:var(--accent);text-underline-offset:3px}
+a:focus-visible,button:focus-visible,input:focus-visible,.tw:focus-visible{outline:3px solid var(--accent);outline-offset:2px;border-radius:6px}
+.skip{position:absolute;left:-9999px}
+.skip:focus{left:16px;top:12px;z-index:50;background:var(--surface);padding:8px 12px;border-radius:8px}
+code{font-family:var(--mono);font-size:.875em;background:var(--surface-2);padding:.1em .38em;border-radius:5px}
+td code{white-space:nowrap}
+tbody th small{font-weight:500;color:var(--ink-3)}
+
+/* hero */
+.hero{position:relative;overflow:hidden;background-color:var(--hero-1);background-image:linear-gradient(160deg,var(--hero-1),var(--hero-2));color:var(--hero-ink)}
+.hero svg.road{position:absolute;inset:auto 0 0 0;width:100%;height:62%;opacity:.55;pointer-events:none}
+.hero-in{position:relative;max-width:1180px;margin:0 auto;padding:56px 24px 44px}
+.eyebrow{font-size:.8125rem;letter-spacing:.14em;text-transform:uppercase;color:var(--hero-sub);margin:0 0 14px}
+.hero h1{font-size:clamp(1.9rem,4.6vw,3.1rem);line-height:1.16;letter-spacing:-.02em;margin:0 0 10px;font-weight:800}
+.hero .slogan{font-size:clamp(1rem,2vw,1.25rem);color:var(--hero-sub);margin:0 0 28px}
+.hero-grid{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:20px;align-items:stretch}
+.dday{background:var(--hero-glass);border:1px solid var(--hero-glass-line);border-radius:var(--radius);padding:20px 22px}
+.dday .num{font-size:clamp(2.6rem,7vw,4rem);font-weight:800;line-height:1;letter-spacing:-.03em;font-variant-numeric:tabular-nums}
+.dday .lbl{color:var(--hero-sub);font-size:.9375rem;margin-top:8px}
+.dday .when{font-weight:600;margin-top:2px}
+.facts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:0;padding:0;list-style:none}
+.facts li{background:var(--hero-glass);border:1px solid var(--hero-glass-line);border-radius:12px;padding:12px 14px}
+.facts .k{display:block;font-size:.75rem;letter-spacing:.06em;color:var(--hero-sub)}
+.facts .v{display:block;font-weight:700;font-size:1.02rem;line-height:1.4;margin-top:2px}
+.disclaimer{margin:22px 0 0;font-size:.8125rem;color:var(--hero-sub)}
+
+/* layout */
+.layout{max-width:1180px;margin:0 auto;padding:0 24px 80px;display:grid;grid-template-columns:220px minmax(0,1fr);gap:36px}
+.toc{position:sticky;top:20px;align-self:start;padding-top:32px;max-height:calc(100vh - 20px);overflow:auto}
+.toc h2{font-size:.75rem;letter-spacing:.12em;color:var(--ink-3);margin:0 0 10px;text-transform:uppercase}
+.toc ol{list-style:none;margin:0;padding:0;border-left:2px solid var(--line)}
+.toc a{display:block;padding:6px 12px;margin-left:-2px;border-left:2px solid transparent;color:var(--ink-2);text-decoration:none;font-size:.9rem;line-height:1.4}
+.toc a:hover{color:var(--ink)}
+.toc a.on{color:var(--accent);border-left-color:var(--accent);font-weight:700}
+main{min-width:0;padding-top:32px}
+section{margin:0 0 56px}
+h2.sec{font-size:1.55rem;letter-spacing:-.015em;line-height:1.3;margin:0 0 6px;font-weight:800}
+.sec-no{display:inline-block;font-size:.8125rem;font-weight:700;color:var(--accent);letter-spacing:.08em;margin-bottom:4px}
+.lead{color:var(--ink-2);margin:0 0 20px;max-width:68ch}
+h3{font-size:1.12rem;margin:28px 0 10px;letter-spacing:-.01em}
+h4{font-size:1rem;margin:0 0 6px}
+p{margin:0 0 12px}
+ul.tight,ol.tight{margin:0 0 12px;padding-left:1.15em}
+ul.tight li,ol.tight li{margin:3px 0}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:20px 22px;box-shadow:var(--shadow)}
+.grid{display:grid;gap:14px}
+.g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.note{border-radius:12px;padding:14px 16px;margin:14px 0;border:1px solid var(--line);background:var(--surface-2);font-size:.95rem}
+.note.warn{background:var(--warn-soft);border-color:transparent;color:var(--ink)}
+.note.bad{background:var(--bad-soft);border-color:transparent}
+.note.ok{background:var(--ok-soft);border-color:transparent}
+.note strong:first-child{display:block;margin-bottom:2px}
+
+/* badges */
+.b{display:inline-block;font-size:.72rem;font-weight:700;line-height:1;padding:.36em .6em;border-radius:999px;vertical-align:.12em;white-space:nowrap}
+.b.v{background:var(--ok-soft);color:var(--ok)}
+.b.e{background:var(--warn-soft);color:var(--warn)}
+.b.u{background:var(--mute-soft);color:var(--mute)}
+.b.in{background:var(--accent-soft);color:var(--accent)}
+.b.out{background:var(--bad-soft);color:var(--bad)}
+.legend{display:flex;flex-wrap:wrap;gap:8px 16px;font-size:.875rem;color:var(--ink-2);margin:0 0 4px}
+
+/* tables */
+.tw{overflow-x:auto;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface);box-shadow:var(--shadow)}
+table{border-collapse:collapse;width:100%;font-size:.93rem}
+th,td{text-align:left;vertical-align:top;padding:11px 14px;border-bottom:1px solid var(--line)}
+thead th{background:var(--surface-2);font-size:.8rem;letter-spacing:.03em;color:var(--ink-2);white-space:nowrap}
+tbody tr:last-child td,tbody tr:last-child th{border-bottom:0}
+tbody th{font-weight:700;white-space:nowrap}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+tr.total td,tr.total th{background:var(--surface-2);font-weight:800}
+.pill{display:inline-block;font-size:.78rem;font-weight:700;padding:.2em .6em;border-radius:6px;white-space:nowrap}
+.pill.y{background:var(--ok-soft);color:var(--ok)} .pill.n{background:var(--bad-soft);color:var(--bad)} .pill.m{background:var(--warn-soft);color:var(--warn)}
+
+/* timeline */
+.tl{list-style:none;margin:0;padding:0;position:relative}
+.tl::before{content:"";position:absolute;left:7px;top:8px;bottom:8px;width:2px;background:var(--line)}
+.tl li{position:relative;padding:0 0 18px 34px}
+.tl li::before{content:"";position:absolute;left:0;top:6px;width:16px;height:16px;border-radius:50%;background:var(--surface);border:2px solid var(--ink-3)}
+.tl li.done{color:var(--ink-3)} .tl li.done::before{background:var(--ink-3)}
+.tl li.next::before{border-color:var(--accent);background:var(--accent);box-shadow:0 0 0 5px var(--accent-soft)}
+.tl .d{font-weight:800;font-variant-numeric:tabular-nums}
+.tl .t{display:block}
+.tl .s{display:block;font-size:.9rem;color:var(--ink-2)}
+.tl li.done .s{color:var(--ink-3)}
+.tl .tag{margin-left:6px}
+
+/* tools */
+.tools{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:0 0 12px}
+.chip{font:inherit;font-size:.875rem;font-weight:600;min-height:var(--tap);padding:8px 16px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--ink-2);cursor:pointer;transition:background-color .15s ease,border-color .15s ease,color .15s ease}
+.chip:hover{border-color:var(--accent);color:var(--accent)}
+.chip:active{background:var(--accent-soft)}
+.chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.search{font:inherit;font-size:.9rem;min-height:var(--tap);padding:8px 12px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--ink);min-width:200px;flex:1 1 200px;max-width:320px}
+.search:hover{border-color:var(--ink-3)}
+.search::placeholder{color:var(--ink-3)}
+td.empty{text-align:center;color:var(--ink-2);padding:28px 14px}
+.count{font-size:.85rem;color:var(--ink-3)}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:6px 16px;margin:0}
+.kv dt{color:var(--ink-3);font-size:.9rem;white-space:nowrap}
+.kv dd{margin:0;font-weight:600}
+.check{list-style:none;margin:0;padding:0}
+.check li{border-bottom:1px solid var(--line)}
+.check li:last-child{border-bottom:0}
+.check label{display:flex;gap:12px;padding:12px 2px;cursor:pointer;align-items:flex-start}
+.check input{width:20px;height:20px;margin-top:3px;accent-color:var(--accent);flex:none}
+.check input:checked + span{color:var(--ink-3);text-decoration:line-through}
+.check small{display:block;color:var(--ink-3);text-decoration:none}
+.src{font-size:.92rem;padding-left:1.2em}
+.src li{margin:6px 0}
+footer{max-width:1180px;margin:0 auto;padding:0 24px 56px;color:var(--ink-3);font-size:.85rem}
+
+@media (max-width:1040px){
+  .layout{grid-template-columns:minmax(0,1fr);gap:0;padding:0 16px 64px}
+  .toc{position:sticky;top:0;z-index:20;max-height:none;padding:10px 0;margin:0 -16px;background:var(--bg);border-bottom:1px solid var(--line);overflow:visible}
+  .toc h2{display:none}
+  .toc ol{display:flex;gap:6px;border:0;overflow-x:auto;padding:0 16px;scrollbar-width:none}
+  .toc ol::-webkit-scrollbar{display:none}
+  .toc a{display:flex;align-items:center;min-height:var(--tap);white-space:nowrap;border:1px solid var(--line);border-radius:999px;margin:0;padding:6px 14px;background:var(--surface)}
+  .toc a.on{border-color:var(--accent);background:var(--accent);color:var(--accent-ink)}
+  .hero-in{padding:40px 16px 32px}
+  .hero-grid{grid-template-columns:minmax(0,1fr)}
+  .g3{grid-template-columns:repeat(2,minmax(0,1fr))}
+  footer{padding:0 16px 48px}
+}
+@media (max-width:640px){
+  body{font-size:15.5px}
+  .g2,.g3{grid-template-columns:minmax(0,1fr)}
+  .card{padding:16px}
+  .facts .v{font-size:.95rem}
+  th,td{padding:10px 12px}
+  h2.sec{font-size:1.35rem}
+}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+@media print{.toc,.tools{display:none}.layout{display:block}.hero{background:#fff;color:#000}.card,.tw{box-shadow:none}}
+</style>
+</head>
+<body>
+<a class="skip" href="#summary">본문으로 건너뛰기</a>
+
+<header class="hero">
+  <svg class="road" viewBox="0 0 1200 360" preserveAspectRatio="none" aria-hidden="true">
+    <defs>
+      <linearGradient id="g1" x1="0" x2="1"><stop offset="0" style="stop-color:var(--hero-line-a);stop-opacity:0"/><stop offset=".55" style="stop-color:var(--hero-line-a)"/><stop offset="1" style="stop-color:var(--hero-line-b);stop-opacity:.7"/></linearGradient>
+    </defs>
+    <path d="M-20 330 C 260 250, 380 340, 620 250 S 980 120, 1220 190" fill="none" stroke="url(#g1)" stroke-width="2"/>
+    <path d="M-20 350 C 280 280, 420 360, 660 280 S 1000 160, 1220 230" fill="none" stroke="url(#g1)" stroke-width="1.2" opacity=".7"/>
+    <path d="M-20 300 C 240 210, 340 310, 580 215 S 960 80, 1220 150" fill="none" stroke="url(#g1)" stroke-width="1" opacity=".5"/>
+  </svg>
+  <div class="hero-in">
+    <p class="eyebrow">Research brief · 조사 기준일 2026-11-11</p>
+    <h1>현대자동차그룹<br>차량용 앱 개발 공모전</h1>
+    <p class="slogan">Code your App into Pleos App Market</p>
+    <div class="hero-grid">
+      <div class="dday" aria-live="polite">
+        <div class="num" id="dday">D-4</div>
+        <div class="lbl">접수 마감까지</div>
+        <div class="when">2026.11.15(일) 23:59 KST · 이메일 접수</div>
+      </div>
+      <ul class="facts">
+        <li><span class="k">주최</span><span class="v">현대자동차그룹</span></li>
+        <li><span class="k">총상금</span><span class="v">5,100만원 · 10팀</span></li>
+        <li><span class="k">참가</span><span class="v">개인·팀(최대 5인)</span></li>
+        <li><span class="k">개발 플랫폼</span><span class="v">Pleos Connect (AAOS 기반)</span></li>
+      </ul>
+    </div>
+    <p class="disclaimer">공식 자료를 읽고 정리한 비공식 리서치 문서입니다. 주최 측이 작성한 문서가 아니며, 최종 판단은 공식 홈페이지 공지를 기준으로 합니다.</p>
+  </div>
+</header>
+
+<div class="layout">
+  <nav class="toc" aria-label="목차">
+    <h2>목차</h2>
+    <ol>
+      <li><a href="#summary">핵심 요약</a></li>
+      <li><a href="#schedule">일정</a></li>
+      <li><a href="#awards">참가·시상</a></li>
+      <li><a href="#judging">심사 기준</a></li>
+      <li><a href="#submission">제출물</a></li>
+      <li><a href="#scope">개발 범위 규칙</a></li>
+      <li><a href="#platform">플랫폼 전체 지도</a></li>
+      <li><a href="#sdk">SDK별 가능한 것</a></li>
+      <li><a href="#ux">화면·주행 제약</a></li>
+      <li><a href="#tools">개발·테스트 환경</a></li>
+      <li><a href="#ideas">분야별 조합 예시</a></li>
+      <li><a href="#prior">선행 사례</a></li>
+      <li><a href="#risks">확인 필요 사항</a></li>
+      <li><a href="#checklist">마감 체크리스트</a></li>
+      <li><a href="#sources">출처</a></li>
+    </ol>
+  </nav>
+
+  <main id="main">
+
+    <section id="summary">
+      <span class="sec-no">01</span>
+      <h2 class="sec">핵심 요약</h2>
+      <p class="lead">차량 인포테인먼트 플랫폼 Pleos Connect에서 돌아가는 안드로이드 앱을 기획하고 만드는 공모전입니다. 1차는 기획서만으로 지원할 수 있고, 2차에 올라가면 에뮬레이터에서 실제로 동작하는 앱을 시연해야 합니다.</p>
+      <div class="grid g2">
+        <div class="card">
+          <h4>무엇을 내는가</h4>
+          <p>1차는 접수양식(기획서) 1건이 필수이고, 시연 영상·GitHub 저장소·APK는 선택이며 가산점이 붙습니다. 1차를 통과한 20팀은 12월 3~4일 오프라인 PT에서 동작하는 앱을 시연합니다.</p>
+        </div>
+        <div class="card">
+          <h4>무엇으로 만드는가</h4>
+          <p>공개된 Pleos Connect SDK 5종(Vehicle, NaviHelper, SpeechToText, TextToSpeech, FusedLocation)과 Android Automotive 표준 API가 범위입니다. LLM SDK와 Gleo AI 연동은 이번 공모전에서 쓸 수 없습니다.</p>
+        </div>
+        <div class="card">
+          <h4>무엇을 보는가</h4>
+          <p>차량특화성, 창의성, 기술 활용성, 사업성 네 항목이 필수 평가 항목입니다. "모바일로도 되는 앱"이 아니라 주행·정차 맥락과 차량 기능에 결합된 가치가 첫 번째 기준입니다.</p>
+        </div>
+        <div class="card">
+          <h4>무엇을 받는가</h4>
+          <p>대학생·일반 부문별로 대상 1,000만원, 최우수상 600만원, 우수상 400만원(2팀)이 있고, 통합 아이디어 특별상 150만원(2팀)이 있습니다. 선정 10팀은 2027년 2월 그룹 행사에서 전시·시상합니다.</p>
+        </div>
+      </div>
+      <div class="note warn">
+        <strong>일정상 가장 급한 사실</strong>
+        접수 마감은 2026년 11월 15일(일) 23:59입니다. 조사 기준일(11월 11일)로부터 4일 남았습니다. 팀 참가는 팀원 전원의 서명이 필요하므로 서명 수집에 걸리는 시간을 먼저 확보해야 합니다.
+      </div>
+      <p class="legend" aria-label="표기 범례">
+        <span><span class="b v">검증됨</span> 공식 페이지·문서에서 직접 확인</span>
+        <span><span class="b e">추정</span> 자료를 근거로 한 해석</span>
+        <span><span class="b u">미확인</span> 공식 자료에 명시 없음</span>
+      </p>
+    </section>
+
+    <section id="schedule">
+      <span class="sec-no">02</span>
+      <h2 class="sec">일정</h2>
+      <p class="lead">모든 시각은 한국 표준시 기준입니다. 일정이 바뀌면 공식 홈페이지 공지사항으로 안내됩니다. <span class="b v">검증됨</span></p>
+      <div class="card">
+        <ol class="tl" id="timeline">
+          <li data-date="2026-10-21"><span class="t"><span class="d">10.21(수)</span> 공고 및 접수 시작</span><span class="s">숏폼 챌린지 참여도 같은 날 시작</span></li>
+          <li data-date="2026-10-28"><span class="t"><span class="d">10.28(수) 14:00</span> 온라인 설명회</span><span class="s">공모전 안내, 개발환경 소개, 질의응답. 다시보기 제공 예정으로 공지됨</span></li>
+          <li data-date="2026-11-15"><span class="t"><span class="d">11.15(일) 23:59</span> 접수 마감</span><span class="s">마감 전 같은 발신 주소로 마지막에 보낸 제출물이 최종본</span></li>
+          <li data-date="2026-11-16"><span class="t"><span class="d">11.16(월)</span> 비공개 GitHub 저장소 공개 전환 기한</span><span class="s">11.23까지 공개 유지. 전환하지 않으면 개발 산출물 가산점 미반영</span></li>
+          <li data-date="2026-11-23"><span class="t"><span class="d">11.23(월)</span> 1차 서류심사 결과 발표</span><span class="s">2차 PT 대상 20팀 선정</span></li>
+          <li data-date="2026-12-03"><span class="t"><span class="d">12.03(목)~12.04(금)</span> 2차 최종 PT 심사</span><span class="s">오프라인 발표. 현대자동차 강남대로사옥 1층 UX스튜디오 서울(강남구 강남대로 350)</span></li>
+          <li data-date="2026-12-18"><span class="t"><span class="d">12.18(금)</span> 최종 선정 결과 발표</span><span class="s">10팀 선정</span></li>
+          <li data-date="2026-12-19"><span class="t"><span class="d">12.19~2027.01</span> 수상팀 전시 준비</span><span class="s">새 기능 개발이 아니라 전시 영상 제작 협조, 최종 구동 APK 제출, 구동 안정성 테스트</span></li>
+          <li data-date="2027-02-01"><span class="t"><span class="d">2027.02</span> 현대자동차그룹 행사 전시 및 시상식</span><span class="s">최종 순위는 이 자리에서 발표</span></li>
+        </ol>
+      </div>
+    </section>
+
+    <section id="awards">
+      <span class="sec-no">03</span>
+      <h2 class="sec">참가 자격과 시상</h2>
+      <p class="lead">대학(원)생, 일반인, 스타트업이 개인 또는 대표자 포함 최대 5인 팀으로 참가합니다. 시상은 대학생 부문과 일반(스타트업 포함) 부문으로 나뉩니다. <span class="b v">검증됨</span></p>
+      <div class="tw">
+        <table>
+          <thead><tr><th scope="col">상</th><th scope="col" class="num">팀당 상금</th><th scope="col" class="num">대학생</th><th scope="col" class="num">일반</th><th scope="col" class="num">소계</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">대상</th><td class="num">1,000만원</td><td class="num">1팀</td><td class="num">1팀</td><td class="num">2,000만원</td></tr>
+            <tr><th scope="row">최우수상</th><td class="num">600만원</td><td class="num">1팀</td><td class="num">1팀</td><td class="num">1,200만원</td></tr>
+            <tr><th scope="row">우수상</th><td class="num">400만원</td><td class="num">2팀</td><td class="num">2팀</td><td class="num">1,600만원</td></tr>
+            <tr><th scope="row">아이디어 특별상</th><td class="num">150만원</td><td class="num" colspan="2">부문 통합 2팀</td><td class="num">300만원</td></tr>
+            <tr class="total"><th scope="row">합계</th><td class="num"></td><td class="num" colspan="2">10팀</td><td class="num">5,100만원</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="grid g2" style="margin-top:14px">
+        <div class="card">
+          <h4>상금 외 혜택</h4>
+          <ul class="tight">
+            <li>2027년 2월 현대자동차그룹 행사에서 전시·시연 및 공식 시상</li>
+            <li>Pleos App Market 탑재 준비 지원. 별도 검증·심사와 지원 차종·지역 조건을 거치며 입점·배포를 보장하지는 않음</li>
+            <li>숏폼 챌린지 어워드 1팀 50만원(본상과 별도, 행사 초청 포함)</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h4>수상 시 따라오는 조건</h4>
+          <ul class="tight">
+            <li>상금은 대표 신청자에게 일괄 지급하고 제세공과금을 원천징수</li>
+            <li>선정 10팀은 전시용 최종 APK 제출과 2027년 2월 행사 현장 시연·시상식 참석이 의무</li>
+            <li>현대자동차그룹 임직원은 참가할 수 있으나 수상 대상에서 제외</li>
+            <li>지식재산권은 응모자에게 있으나, 수상작에 대해 주최 측이 통상실시권과 결과 발표일로부터 4개월간 우선협상권을 가질 수 있음</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section id="judging">
+      <span class="sec-no">04</span>
+      <h2 class="sec">심사 기준</h2>
+      <p class="lead">1차 서류심사의 평가 항목은 공개되어 있지만 세부 배점은 공개하지 않습니다. 2차 PT 심사 기준은 "추후 안내 예정"입니다. <span class="b v">검증됨</span></p>
+      <div class="tw">
+        <table>
+          <thead><tr><th scope="col">항목</th><th scope="col">구분</th><th scope="col">평가 내용</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">차량특화성</th><td>필수</td><td>모바일 대비 차량 환경만의 독자적 가치와 우위, 주행·정차 맥락 및 차량 기능과의 결합</td></tr>
+            <tr><th scope="row">창의성</th><td>필수</td><td>독창적·혁신적 아이디어, 운전자·동승자의 불편과 필요를 정의하고 해결하는 방식의 명확성</td></tr>
+            <tr><th scope="row">기술 활용성</th><td>필수</td><td>Pleos Playground가 제공하는 SDK·API를 핵심 기능과 사용 경험에 적절히 활용했는지</td></tr>
+            <tr><th scope="row">사업성</th><td>필수</td><td>타깃 고객의 명확성, 사용자 확보·지속 이용·확대 가능성(타깃 고객 분석, 예상 MAU, 재방문율, 서비스 확대 계획)</td></tr>
+            <tr><th scope="row">개발 산출물</th><td>가산점(선택)</td><td>프로토타입 시연 영상, GitHub 저장소(소스 코드·APK 포함). 1차 접수 때 함께 내면 단계별 가산점</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="note">
+        <strong>심사 흐름</strong>
+        1차 서류심사로 20팀을 뽑고, 2차 오프라인 PT에서 에뮬레이터 구동 화면 또는 기기로 앱을 시연합니다. 최종 순위는 2차 PT에서 제출·시연한 결과물로 확정되며, PT 이후의 추가 개발은 순위에 영향을 주지 않습니다. 이 심사는 Pleos App Market 입점 심사와 별개입니다.
+      </div>
+    </section>
+
+    <section id="submission">
+      <span class="sec-no">05</span>
+      <h2 class="sec">제출물과 접수 방법</h2>
+      <p class="lead">회원가입 없이 접수양식을 작성·서명해 이메일로 보냅니다. 접수양식이 곧 기획서이며 분량 제한은 없습니다. <span class="b v">검증됨</span></p>
+      <div class="grid g2">
+        <div class="card">
+          <h4>접수 정보</h4>
+          <dl class="kv">
+            <dt>받는 주소</dt><dd>appdevchallenge@hyundai-partners.com</dd>
+            <dt>메일 제목</dt><dd>[차량용 앱 개발 공모전] 팀명(개인은 성명)_대표자명</dd>
+            <dt>파일 형식</dt><dd>DOCX 또는 PDF</dd>
+            <dt>서명</dt><dd>전자서명, 서명 이미지 삽입 모두 인정</dd>
+            <dt>팀 참가</dt><dd>팀원 전원 개별 서명 + 전원을 참조(CC)에 포함</dd>
+            <dt>수정 제출</dt><dd>처음 보낸 주소로 전체 자료 재발송, 제목 앞에 [수정제출]</dd>
+          </dl>
+        </div>
+        <div class="card">
+          <h4>제출물 구분</h4>
+          <ul class="tight">
+            <li><strong>필수</strong> 접수양식(기획서)과 개인정보 수집·이용 동의 서명</li>
+            <li><strong>선택, 가산점</strong> 시연 영상(목업·프로토타입·화면 녹화 인정), GitHub 저장소(소스 + APK)</li>
+            <li><strong>선택, 가산점 없음</strong> 숏폼 링크(30초~1분 세로 영상, 필수 해시태그 #HMG차량용앱개발공모전)</li>
+            <li><strong>참고용</strong> PPT, PDF, HTML 등 추가 자료 첨부 가능</li>
+          </ul>
+        </div>
+      </div>
+
+      <h3>접수양식(기획서) 구성</h3>
+      <p>양식 DOCX를 직접 열어 확인한 구성입니다. "02 앱 프로젝트 소개"에는 성명·연락처·소속을 적지 않도록 되어 있어, 심사 자료와 신상 정보가 분리됩니다.</p>
+      <div class="tw">
+        <table>
+          <thead><tr><th scope="col">번호</th><th scope="col">항목</th><th scope="col">작성 내용</th><th scope="col">연결되는 심사 항목 <span class="b e">추정</span></th></tr></thead>
+          <tbody>
+            <tr><th scope="row">1</th><td>앱 한 줄 소개</td><td>앱을 한 문장으로 소개</td><td>전체</td></tr>
+            <tr><th scope="row">2</th><td>기획 배경</td><td>어떤 고객의 필요나 불편한 순간에 주목했고 왜 해결이 필요한지</td><td>창의성</td></tr>
+            <tr><th scope="row">3</th><td>주요 기능 및 차량 특화 요소</td><td>핵심 기능, 해결하는 문제, 차량에서 제공하는 새로운 경험</td><td>차량특화성</td></tr>
+            <tr><th scope="row">4</th><td>주요 사용 시나리오</td><td>누가, 어떤 상황에서, 어떻게 쓰는지 구체적인 이용 흐름</td><td>창의성, 차량특화성</td></tr>
+            <tr><th scope="row">5</th><td>개발 계획</td><td>Pleos Connect 환경에서의 구현 방식, 주요 개발 범위, SDK/API 사용 계획</td><td>기술 활용성</td></tr>
+            <tr><th scope="row">6</th><td>기대효과 및 발전 가능성</td><td>사용자 가치, 타깃 고객 분석, 예상 MAU, 재방문율, 확대 계획</td><td>사업성</td></tr>
+            <tr><th scope="row">7</th><td>참고자료(선택)</td><td>앱 화면 시안, 시연 영상, GitHub 저장소 등</td><td>가산점</td></tr>
+            <tr><th scope="row">8</th><td>숏폼 링크(선택)</td><td>게시한 세로 영상 링크</td><td>별도 특별상</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>GitHub 저장소로 개발 산출물을 낼 때</h3>
+      <div class="card">
+        <ul class="tight">
+          <li>APK는 따로 내지 않고 저장소의 <code>apk/</code> 폴더에 올립니다. 파일명은 <code>팀명_앱이름_release.apk</code>이며 실행 가능한 release 버전이어야 합니다. 용량이 크면 GitHub Releases에 등록하고 그 주소를 냅니다.</li>
+          <li>접수 메일에 저장소 주소와 최종 커밋 해시를 적습니다. 심사는 이 커밋을 기준으로 합니다.</li>
+          <li>마감까지는 비공개 저장소도 가능합니다. 11월 16일(월)까지 공개로 전환하고 11월 23일까지 유지해야 가산점이 반영됩니다. 심사 계정을 협업자로 초대할 필요는 없습니다.</li>
+          <li>README.md 필수 항목: 앱 이름과 한 줄 소개, 실행 방법, 테스트 환경과 필요한 설정, 사용한 Pleos Connect 에뮬레이터 버전과 화면 규격, APK 위치 또는 Release 링크.</li>
+          <li>API 키 같은 비밀값은 저장소에서 빼도 되고, 자체 서버 소스 제출은 필수가 아닙니다.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="scope">
+      <span class="sec-no">06</span>
+      <h2 class="sec">개발 범위 규칙</h2>
+      <p class="lead">운영사무국 공지 "공모전 개발 범위 및 기술 문의 안내"의 내용입니다. 범위는 "현재 공개된 Pleos Playground 개발 문서의 SDK·API"로 한정됩니다. <span class="b v">검증됨</span></p>
+      <div class="grid g2">
+        <div class="card">
+          <h4>할 수 있는 것</h4>
+          <ul class="tight">
+            <li>공개 문서에 있는 SDK·API로 개발</li>
+            <li>문서에서 지원하지 않는 기능은 기획서에 "향후 계획"으로 기재</li>
+            <li>2차 PT는 Pleos Connect 에뮬레이터 구동으로 시연(실차 불필요)</li>
+            <li>음성 인식은 SpeechToText SDK 사용</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h4>할 수 없는 것</h4>
+          <ul class="tight">
+            <li>미공개(Coming Soon) SDK 사용. 참가자에게 먼저 제공하지 않음</li>
+            <li>Gleo Interface(App Schema) 검토·승인 신청</li>
+            <li>차량 마이크 음성을 외부 음성 인식 서비스로 전송</li>
+            <li>개발 장비 대여, 실차 측정 장소, 별도 기술 지원 창구 이용(제공하지 않음)</li>
+          </ul>
+        </div>
+      </div>
+      <div class="note bad">
+        <strong>LLM SDK는 쓸 수 없습니다</strong>
+        2026년 10월 19일 Pleos Connect Emulator v2.1.0 릴리스 노트의 "Removed Features"에 "LLM SDK 제공 종료"가 명시되어 있습니다. 문서 사이트에 LLM API 레퍼런스 경로는 남아 있지만 공식 SDK 모듈 목록(5종)에는 없습니다. <span class="b v">검증됨</span>
+      </div>
+      <div class="note">
+        <strong>기술 문의는 받지 않습니다</strong>
+        운영사무국은 참가 자격·접수·제출·심사 일정 같은 운영 문의에만 답합니다. 개별 기능 구현 방법이나 특정 API 동작은 개발 문서에서 직접 확인해야 합니다.
+      </div>
+    </section>
+
+    <section id="platform">
+      <span class="sec-no">07</span>
+      <h2 class="sec">플랫폼 전체 지도</h2>
+      <p class="lead">Pleos는 현대자동차그룹의 모빌리티 소프트웨어 브랜드이고, Pleos Playground는 그 개발자 포털입니다. 개발 문서 사이트의 목차(약 4,300쪽)를 기준으로 제품군을 여덟 갈래로 나눴습니다. 공모전 범위는 첫 번째 갈래의 일부입니다.</p>
+      <p class="legend"><span><span class="b in">공모전 범위</span> 이번 공모전에서 사용</span><span><span class="b out">범위 밖</span> 공모전 범위가 아니거나 제공 종료</span></p>
+      <div class="grid g2">
+        <div class="card">
+          <h4>1. 차량 안에서 도는 앱 <span class="b in">공모전 범위</span></h4>
+          <p><strong>Pleos Connect</strong>는 Android Automotive OS 기반 차세대 인포테인먼트입니다. Vehicle, NaviHelper, SpeechToText, TextToSpeech, FusedLocation SDK와 디자인 가이드, 에뮬레이터가 공개되어 있습니다.</p>
+          <p style="margin:0;color:var(--ink-2);font-size:.92rem">제품 목차에는 ADAS SDK, NaviProvider SDK도 보이지만 공개 SDK 모듈 목록에는 없습니다. <span class="b out">범위 밖</span></p>
+        </div>
+        <div class="card">
+          <h4>2. AI와 음성 <span class="b out">대부분 범위 밖</span></h4>
+          <p><strong>Gleo AI</strong>는 LLM 기반 음성 어시스턴트입니다. Gleo Interface는 앱이 등록한 함수(App Schema)를 Gleo AI가 호출하는 function calling 방식입니다. LLM API, PEFT API 문서도 목차에 있습니다.</p>
+          <p style="margin:0;color:var(--ink-2);font-size:.92rem">공모전에서는 음성 입출력(STT·TTS)만 쓸 수 있습니다.</p>
+        </div>
+        <div class="card">
+          <h4>3. 배포와 수익화</h4>
+          <p><strong>Pleos App Market</strong>은 차량용 앱 스토어입니다. 앱 등록, 심사(주의 분산·사이버보안 중점), 배포, 버전 관리 가이드가 있습니다. 공모전 심사와는 별개 절차입니다.</p>
+        </div>
+        <div class="card">
+          <h4>4. 클라우드 차량 데이터 <span class="b out">범위 밖</span></h4>
+          <p><strong>Vehicle Data API</strong>는 현대·기아·제네시스 커넥티드카의 텔레매틱스 데이터를 동의 범위 안에서 REST로 조회합니다. 충전 상태, 파워트레인, 위치, 운행, 센서, 공조 상태가 대상입니다. 차 안 앱이 아니라 서버·모바일 서비스용입니다.</p>
+        </div>
+        <div class="card">
+          <h4>5. 플릿 관리 <span class="b out">범위 밖</span></h4>
+          <p><strong>Fleet API</strong>는 차량·단말 등록과 관리를 REST API와 Webhook으로 제공합니다. 예약, 운전자, 정비, 운행 이력은 "지원 예정"으로 표기되어 있습니다.</p>
+        </div>
+        <div class="card">
+          <h4>6. 지도와 내비게이션 엔진 <span class="b out">범위 밖</span></h4>
+          <p>Maps API, Maps JS, Place SDK, Map SDK for Android, Navigation Engine API가 목차에 있습니다. 공모전에서 내비 연동은 NaviHelper SDK로 합니다.</p>
+        </div>
+        <div class="card">
+          <h4>7. 기기 연동과 공통 서비스 <span class="b out">범위 밖</span></h4>
+          <p>Sync SDK(기기 간 동기화), Connect Mobile(모바일에서 공조·충전·V2L·예약 제어), Universal Wallet, HMG ID OAuth Gateway, Messaging Platform, Media Server가 있습니다.</p>
+        </div>
+        <div class="card">
+          <h4>8. 차량 OS와 SDV 기반 <span class="b out">범위 밖</span></h4>
+          <p>CODA OS(차량 OS) API, Pleos SDV Standard(E/E 아키텍처 규격), Pleos Platform SDK, Atria(자율주행 프레임워크)가 있습니다. 제어기·플랫폼 개발자용입니다.</p>
+        </div>
+      </div>
+      <p style="margin-top:12px;font-size:.9rem;color:var(--ink-3)">2~8번은 문서 목차와 소개 페이지까지만 확인했습니다. 외부 개발자의 이용 조건과 세부 기능은 <span class="b u">미확인</span>입니다.</p>
+    </section>
+
+    <section id="sdk">
+      <span class="sec-no">08</span>
+      <h2 class="sec">SDK별로 가능한 것</h2>
+      <p class="lead">공모전 범위인 Pleos Connect SDK 5종을 기능 범주로 나눴습니다. SDK 버전은 2026년 10월 19일 릴리스 노트 기준입니다. <span class="b v">검증됨</span></p>
+
+      <div class="tw">
+        <table>
+          <thead><tr><th scope="col">범주</th><th scope="col">SDK</th><th scope="col">버전</th><th scope="col">한 줄 설명</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">차량 상태·제어</th><td>Vehicle SDK</td><td>v2.3.2</td><td>19개 도메인의 차량 상태를 읽고 일부를 제어</td></tr>
+            <tr><th scope="row">내비게이션</th><td>NaviHelper SDK</td><td>v3.0.5</td><td>기본 내비 앱에 목적지·경유지를 요청하고 주행 이벤트를 수신</td></tr>
+            <tr><th scope="row">음성 입력</th><td>SpeechToText SDK</td><td>v3.3.1</td><td>발화를 텍스트로 변환</td></tr>
+            <tr><th scope="row">음성 출력</th><td>TextToSpeech SDK</td><td>v3.3.1</td><td>텍스트를 합성해 차량 오디오로 재생</td></tr>
+            <tr><th scope="row">위치</th><td>FusedLocation SDK</td><td>v1.1.3</td><td>차량 위치 수신과 영역 진입·이탈 알림</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>차량 상태·제어 — Vehicle SDK 19개 도메인</h3>
+      <p>각 도메인은 지원 여부 확인(<code>checkXxxCapabilities</code>), 조회(<code>get</code>), 제어(<code>set</code>·<code>move</code>), 변화 구독(<code>register</code>) API로 구성됩니다. 아래 표의 조회·제어 구분은 API 레퍼런스의 메서드 이름에서 뽑았습니다. 차종마다 지원 범위가 다르므로 실행 시점에 지원 여부를 먼저 확인해야 합니다.</p>
+      <div class="tools" role="group" aria-label="도메인 필터">
+        <button class="chip" type="button" data-f="all" aria-pressed="true">전체</button>
+        <button class="chip" type="button" data-f="ctl" aria-pressed="false">제어 가능</button>
+        <button class="chip" type="button" data-f="ro" aria-pressed="false">조회 전용</button>
+        <input class="search" id="q" type="search" placeholder="예: 시트, 충전, 온도" aria-label="도메인 검색">
+        <span class="count" id="cnt" aria-live="polite"></span>
+      </div>
+      <div class="tw">
+        <table id="dom">
+          <thead><tr><th scope="col">도메인</th><th scope="col">읽을 수 있는 것</th><th scope="col">제어할 수 있는 것</th><th scope="col">조회 권한</th></tr></thead>
+          <tbody>
+            <tr data-c="1"><th scope="row">HVAC<br><small>공조</small></th><td>전원, 에어컨, 오토, 듀얼, 내기순환, 풍량, 풍향, 앞뒤 성에 제거, 공기청정, 설정 온도, 현재 온도</td><td>왼쪽 항목 대부분 설정(온도, 풍량, 풍향, 에어컨, 오토, 성에 제거, 공기청정 등)</td><td><code>CAR_CLIMATE</code></td></tr>
+            <tr data-c="1"><th scope="row">Seat<br><small>좌석</small></th><td>좌석 위치(앞뒤, 높이, 등받이 각도, 기울기, 깊이, 헤드레스트, 허리 지지), 착좌 여부, 안전벨트 체결, 시트 열선과 통풍</td><td>좌석 각 축 이동, 시트 메모리 선택, 시트 열선과 통풍 설정</td><td><code>CAR_SEATS</code></td></tr>
+            <tr data-c="1"><th scope="row">Light<br><small>조명</small></th><td>앰비언트 라이트(켜짐, 밝기, 색상, 드라이브 모드 연동), 실내등, 독서등, 상향·하향등, 앞뒤 안개등, 미등</td><td>앰비언트 라이트 밝기·색상·전원, 각 조명 스위치</td><td><code>CAR_LIGHTS</code></td></tr>
+            <tr data-c="1"><th scope="row">Door<br><small>도어</small></th><td>도어 열림·닫힘, 잠금 상태, 글로브박스 잠금</td><td>도어 위치, 도어 잠금·해제, 글로브박스 잠금</td><td><code>CAR_DOORS</code></td></tr>
+            <tr data-c="1"><th scope="row">Window<br><small>창문</small></th><td>창문 위치, 창문 잠금, 블라인드 위치, 스마트 글래스 상태와 단계</td><td>창문 위치, 창문 잠금, 블라인드 이동, 스마트 글래스 상태, 단계, 구역</td><td><code>CAR_WINDOWS</code></td></tr>
+            <tr data-c="1"><th scope="row">EvBattery<br><small>전기차 배터리</small></th><td>배터리 충전율, 전비(누적, 현재, 순간, 충전 이후), 충전 전류 제한, 충전 스위치 상태</td><td>충전 전류 제한, 목표 충전량, 충전 포트 열기, 충전 스위치</td><td><code>CAR_ENERGY</code></td></tr>
+            <tr data-c="1"><th scope="row">Wiper<br><small>와이퍼</small></th><td>와이퍼 동작 상태, 스위치 위치</td><td>와이퍼 스위치</td><td><code>CAR_WINDOWS</code></td></tr>
+            <tr data-c="1"><th scope="row">SteeringWheel<br><small>스티어링 휠</small></th><td>조향각, 핸들 열선 상태</td><td>핸들 열선</td><td>문서 표에 없음</td></tr>
+            <tr data-c="1"><th scope="row">SideMirror<br><small>사이드미러</small></th><td>미러 열선 상태</td><td>미러 열선</td><td><code>CAR_MIRRORS</code></td></tr>
+            <tr data-c="1"><th scope="row">Toll<br><small>하이패스</small></th><td>ETCS 음성 안내 음량</td><td>ETCS 음성 안내 음량</td><td><code>CAR_TOLL</code></td></tr>
+            <tr data-c="0"><th scope="row">Safety<br><small>안전·경고</small></th><td>경고등(주차 브레이크, 안전벨트, ABS, TPMS 등) 상태, 에어백 활성·전개, 안전벨트 미착용 경고, 엔진오일·브레이크액·변속기오일 수준, 워셔액 부족</td><td>없음</td><td><code>CAR_SAFETY</code></td></tr>
+            <tr data-c="0"><th scope="row">DrivingMode<br><small>주행 모드</small></th><td>드라이브 모드, 크루즈 컨트롤 상태와 목표 속도</td><td>없음</td><td><code>CAR_DRIVE</code></td></tr>
+            <tr data-c="0"><th scope="row">Odometer<br><small>주행 거리</small></th><td>총 주행 거리, 트립별 주행 거리·시간(누적, 현재, 순간, 주유·충전 이후)</td><td>없음</td><td><code>CAR_DRIVE</code></td></tr>
+            <tr data-c="0"><th scope="row">Fuel<br><small>연료</small></th><td>연료 잔량, 연비(누적, 현재, 순간, 충전·주유 이후)</td><td>없음</td><td><code>CAR_ENERGY</code></td></tr>
+            <tr data-c="0"><th scope="row">Brake<br><small>브레이크</small></th><td>브레이크 페달 상태</td><td>없음</td><td><code>CAR_DRIVE</code></td></tr>
+            <tr data-c="0"><th scope="row">TurnSignal<br><small>방향지시등</small></th><td>방향지시등 상태</td><td>없음</td><td><code>CAR_LIGHTS</code></td></tr>
+            <tr data-c="0"><th scope="row">Tire<br><small>타이어</small></th><td>저압 경고</td><td>없음</td><td><code>CAR_SAFETY</code></td></tr>
+            <tr data-c="0"><th scope="row">CarInfo<br><small>차량 정보</small></th><td>차대번호(VIN). 문서 소개는 외부 크기·제조사·연식 등 기본 정보로 설명</td><td>없음</td><td><code>CAR_INFO</code></td></tr>
+            <tr data-c="0"><th scope="row">Display<br><small>표시 단위</small></th><td>온도 표시 단위</td><td>없음</td><td><code>CAR_INFO</code></td></tr>
+            <tr id="dom-empty" hidden><td class="empty" colspan="4">조건에 맞는 도메인이 없습니다. 검색어를 지우거나 필터를 "전체"로 바꿔 보세요.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="note">
+        <strong>권한 구조</strong>
+        조회는 <code>pleos.car.permission.CAR_*</code>, 제어는 <code>CONTROL_CAR_*</code> 권한을 매니페스트에 선언합니다. 실제 App Market 배포에서는 사전 협의·승인된 권한만 쓸 수 있고, 승인되지 않은 권한을 선언하면 심사를 통과하지 못합니다. 제어 API는 이 승인 문턱이 더 높다고 보는 편이 안전합니다. <span class="b e">추정</span>
+      </div>
+
+      <h3>내비게이션 — NaviHelper SDK</h3>
+      <div class="grid g2">
+        <div class="card">
+          <h4>요청할 수 있는 것</h4>
+          <ul class="tight">
+            <li>목적지 설정·확인·취소, 경로 재탐색, 경로 옵션 변경</li>
+            <li>경유지 추가·조회·제거, 경유지를 포함한 경로 요청</li>
+            <li>트립 요청, 내비게이션 화면 띄우기 요청</li>
+            <li>현재 위치 정보, 즐겨찾기, 최근 목적지, 경로 상태, 턴바이턴 정보, 충전 사업자 정보 조회</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h4>받을 수 있는 이벤트</h4>
+          <ul class="tight">
+            <li>경로 시작·취소·탐색 완료, 목적지 도착, 경유지 도착·변경</li>
+            <li>현재 도로 제한 속도, 단속 카메라 알림, 주의 지점</li>
+            <li>주행 정보, 트립 정보, 내비 상태 변화</li>
+            <li>데이터 모델에 교통 혼잡·교통 이벤트·충전 계획 정보 포함</li>
+          </ul>
+        </div>
+      </div>
+      <p style="margin-top:10px;font-size:.92rem;color:var(--ink-2)">요청은 Pleos Connect 기본 내비게이션 앱으로 전달되어 처리됩니다. 지도를 직접 그리는 SDK가 아니며, 내비게이션이 장착된 차량에서만 완전히 호환됩니다.</p>
+
+      <h3>음성 — SpeechToText · TextToSpeech SDK</h3>
+      <div class="grid g2">
+        <div class="card">
+          <h4>음성 입력(STT)</h4>
+          <ul class="tight">
+            <li>발화를 텍스트로 변환해 앱에 전달. 언어·지역 설정 가능</li>
+            <li>모드 세 가지: 서버 우선 후 자동 전환(HYBRID), 서버 전용(SERVER), 차량 내 엔진(ON_DEVICE)</li>
+            <li>서버 모드는 Pleos Playground의 My Project 자격 증명으로 앱 등록 필요. ON_DEVICE만 쓰면 등록 불필요</li>
+            <li>명령을 실행해 주지는 않음. "음악 틀어줘"를 텍스트로 돌려줄 뿐이며, 해석과 동작은 앱이 구현</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h4>음성 출력(TTS)</h4>
+          <ul class="tight">
+            <li>텍스트를 합성해 차량 오디오 시스템으로 재생. 스트리밍 방식</li>
+            <li>STT와 같은 세 가지 모드</li>
+            <li>언어·지역, 화자 유형, 오디오 속성, 오디오 구역 지정 API 제공</li>
+            <li>재생은 차량 전체 오디오 포커스 정책을 따라야 함</li>
+          </ul>
+        </div>
+      </div>
+
+      <h3>위치 — FusedLocation SDK</h3>
+      <div class="card">
+        <ul class="tight">
+          <li>마지막으로 확인된 위치 1회 조회, 위치 업데이트 구독</li>
+          <li>지정 영역 진입·이탈 알림(Proximity Alert) 등록·해제</li>
+          <li>위치 데이터 항목: 위도, 경도, 고도, 진행 방향, 신뢰도, 타임스탬프</li>
+          <li>사용 전 <code>isSupported()</code>로 실행 환경 지원 여부 확인 필수. 권한은 <code>pleos.car.permission.FUSED_LOCATION</code></li>
+        </ul>
+      </div>
+
+      <h3>Android Automotive 표준 API</h3>
+      <div class="card">
+        <p>Pleos Connect SDK는 AAOS에 같은 기능이 있으면 표준을 쓰는 것을 원칙으로 합니다. 속도, 기어 상태, 외기 온도, 연료 수준 같은 표준 데이터는 AAOS의 <code>CarPropertyManager</code>로 읽습니다.</p>
+        <ul class="tight">
+          <li>차량 속도는 <code>PERF_VEHICLE_SPEED</code> 속성으로 조회(계기판과 같은 값). Vehicle SDK의 속도 리스너는 v2.3.2에서 삭제됨</li>
+          <li>주행 중 제한 상태는 <code>CarUxRestrictionsManager</code>로 확인</li>
+          <li>속성별·차종별 지원 여부는 다르며, 차종 이름으로 분기하지 말고 실행 시점에 확인</li>
+        </ul>
+      </div>
+
+      <h3>범위 밖이거나 제한되는 것</h3>
+      <div class="tw">
+        <table>
+          <thead><tr><th scope="col">항목</th><th scope="col">상태</th><th scope="col">근거</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">LLM SDK</th><td><span class="pill n">제공 종료</span></td><td>에뮬레이터 v2.1.0 릴리스 노트</td></tr>
+            <tr><th scope="row">Gleo AI 연동(Gleo Interface)</th><td><span class="pill n">신청 불가</span></td><td>공모전 공지: 참가팀은 App Schema 승인 신청 불가</td></tr>
+            <tr><th scope="row">ADAS SDK, NaviProvider SDK, Sync SDK</th><td><span class="pill n">미공개</span></td><td>공개 SDK 모듈 목록(5종)에 없음</td></tr>
+            <tr><th scope="row">외부 음성 인식으로 마이크 음성 전송</th><td><span class="pill n">불가</span></td><td>공모전 공지</td></tr>
+            <tr><th scope="row">차량 하드웨어·센서 직접 접근</th><td><span class="pill n">금지</span></td><td>하드웨어 접근 정책: 플랫폼 API로만 접근</td></tr>
+            <tr><th scope="row">모바일 전용 API</th><td><span class="pill m">제한 가능</span></td><td>전화, SMS, 일부 센서(자이로, 근접), 캘린더, 주소록</td></tr>
+            <tr><th scope="row">내비 탑재 여부 확인</th><td><span class="pill m">비공개</span></td><td>개발 가이드 FAQ</td></tr>
+            <tr><th scope="row">외부 서버·외부 API 호출</th><td><span class="pill m">명시 없음</span></td><td>금지 조항은 없고, "API 키는 저장소에서 제외 가능, 자체 서버 소스 제출은 필수 아님" 안내가 있어 사용을 전제로 한 것으로 읽힘 <span class="b e">추정</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="ux">
+      <span class="sec-no">09</span>
+      <h2 class="sec">화면 구조와 주행 중 제약</h2>
+      <p class="lead">차량 화면은 모바일과 구조가 다르고, 주행 중에는 쓸 수 있는 기능이 줄어듭니다. 기획 단계에서 반영해야 하는 조건입니다. <span class="b v">검증됨</span></p>
+      <div class="grid g2">
+        <div class="card">
+          <h4>화면 구성</h4>
+          <ul class="tight">
+            <li>상태 표시줄, 드라이빙 뷰(속도·경고등 등 주행 정보), 하단 내비게이션 바, 앱 창으로 구성</li>
+            <li>드라이빙 뷰는 고정 영역이며 앱이 가리거나 끌 수 없음</li>
+            <li>앱 창에는 앱을 최대 2개까지 동시에 표시</li>
+            <li>앱 1개가 창 하나를 쓰면 세로형, 두 창을 모두 쓰면 가로형. 두 레이아웃을 모두 설계해야 함</li>
+            <li>화면에서 사라진 앱은 종료되지 않고 백그라운드에 남음</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h4>디스플레이 종류</h4>
+          <ul class="tight">
+            <li><strong>Connect-S</strong> 표준형. 17인치, 14.6인치, 12.9인치. 창 비율 1:1 또는 2:0</li>
+            <li><strong>Connect-W</strong> 가로로 긴 와이드형, 주로 고급 차종. 창 비율 2:1 또는 1:2. 조수석 쪽에서 실행한 앱은 조수석 창에서만 실행</li>
+            <li><strong>Connect-WF</strong> 와이드보다 해상도가 작은 형태</li>
+          </ul>
+        </div>
+      </div>
+
+      <h3>주행 중 사용 제한</h3>
+      <p>주의 분산 최적화(DO)를 선언하지 않은 앱은 주차 중에만 쓸 수 있고 주행 중에는 사용할 수 없습니다. DO를 선언한 앱도 아래 기능별 제한을 직접 적용해야 합니다. 주차 중에는 모든 항목이 허용됩니다.</p>
+      <div class="tw">
+        <table>
+          <thead><tr><th scope="col">주행 중</th><th scope="col">키보드</th><th scope="col">다이얼패드</th><th scope="col">검색</th><th scope="col">로그인·설정</th><th scope="col">차량 설정<br>(도어·시트)</th><th scope="col">동영상</th><th scope="col">내비 검색</th><th scope="col">QR 로그인</th><th scope="col">긴 텍스트</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">북미</th><td><span class="pill n">제한</span></td><td><span class="pill n">제한</span></td><td><span class="pill m">음성만</span></td><td><span class="pill n">제한</span></td><td><span class="pill n">제한</span></td><td><span class="pill n">제한</span></td><td><span class="pill n">제한</span></td><td><span class="pill n">제한</span></td><td><span class="pill n">제한</span></td></tr>
+            <tr><th scope="row">유럽</th><td><span class="pill y">가능</span></td><td><span class="pill y">가능</span></td><td><span class="pill y">가능</span></td><td><span class="pill n">제한</span></td><td><span class="pill n">제한</span></td><td><span class="pill n">제한</span></td><td><span class="pill y">가능</span></td><td><span class="pill n">제한</span></td><td><span class="pill n">제한</span></td></tr>
+            <tr><th scope="row">그 외 지역</th><td><span class="pill y">가능</span></td><td><span class="pill y">가능</span></td><td><span class="pill y">가능</span></td><td><span class="pill y">가능</span></td><td><span class="pill n">제한</span></td><td><span class="pill n">제한</span></td><td><span class="pill y">가능</span></td><td><span class="pill n">제한</span></td><td><span class="pill n">제한</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p style="margin-top:10px;font-size:.92rem;color:var(--ink-2)">문서의 지역 구분은 북미, 유럽, 그 외 세 가지입니다. 한국(지역 코드 KOR)은 "그 외 지역" 표가 적용되는 것으로 읽힙니다. <span class="b e">추정</span> 어느 지역에서든 주행 중 동영상 재생과 차량 설정 조작은 제한됩니다.</p>
+
+      <div class="grid g2" style="margin-top:14px">
+        <div class="card">
+          <h4>앱 카테고리 8종</h4>
+          <p>Maps/Navigation, Mobility Services, Lifestyle, Entertainment, Business, Music/Audio, Kids, Social/Communication.</p>
+          <p style="margin:0">주행 중 기능이 제한적으로 허용될 수 있는 카테고리는 Music/Audio(재생 조작, 오디오북), Maps/Navigation(경로 안내, 교통 정보), Mobility Services(충전소·주유소·주차장 찾기, 차량 관리)입니다.</p>
+        </div>
+        <div class="card">
+          <h4>설계 수치 기준</h4>
+          <ul class="tight">
+            <li>운전자가 1~2초 안에 정보를 파악할 수 있어야 함</li>
+            <li>입력 후 시스템 응답은 0.25초 이내</li>
+            <li>한 손으로 조작 가능해야 함</li>
+            <li>CPU 사용률: 주행 중 일반 앱 5% 미만, 내비 앱 15% 이하, 정차 중 25% 이하</li>
+            <li>RAM 사용량 400MB 이하</li>
+            <li>주행 중 네트워크 끊김에 대비한 캐싱과 재시도 설계 권장</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section id="tools">
+      <span class="sec-no">10</span>
+      <h2 class="sec">개발·테스트 환경</h2>
+      <p class="lead">실차 없이 PC에서 개발과 시연을 모두 할 수 있습니다. 에뮬레이터와 가상 콘솔은 2026년 10월 19일에 정식 릴리스되었습니다. <span class="b v">검증됨</span></p>
+      <div class="grid g2">
+        <div class="card">
+          <h4>요구 사항</h4>
+          <dl class="kv">
+            <dt>IDE</dt><dd>Android Studio 최신 버전</dd>
+            <dt>언어</dt><dd>Kotlin 또는 Java</dd>
+            <dt>minSdk</dt><dd>API 28 이상</dd>
+            <dt>Gradle</dt><dd>8.0 이상</dd>
+            <dt>에뮬레이터</dt><dd>Pleos Connect Emulator v2.1.0 (API 34 시스템 이미지)</dd>
+            <dt>AVD 설정</dt><dd>Automotive, RAM 4GB, Cold boot</dd>
+          </dl>
+        </div>
+        <div class="card">
+          <h4>시작 순서</h4>
+          <ol class="tight">
+            <li>Android Studio SDK Manager에 Pleos Connect 시스템 이미지 저장소 추가</li>
+            <li>API 34 Pleos Connect 이미지 설치 후 Automotive AVD 생성</li>
+            <li><code>settings.gradle.kts</code>에 Pleos Maven 저장소 등록</li>
+            <li>SDK 의존성 추가(예: <code>ai.pleos.playground:Vehicle</code>)</li>
+            <li>매니페스트에 차량 권한 선언 후 첫 API 호출</li>
+          </ol>
+        </div>
+      </div>
+      <h3>가상 콘솔로 시뮬레이션할 수 있는 차량 상태</h3>
+      <p>Pleos Connect Virtual Console은 에뮬레이터의 8088 포트를 포워딩해 PC 브라우저에서 엽니다. 차량 상태와 이벤트를 조작해 앱 반응을 확인하고, 시연 시나리오를 반복 재생할 수 있습니다.</p>
+      <div class="tw">
+        <table>
+          <thead><tr><th scope="col">영역</th><th scope="col">조작할 수 있는 항목</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">Motion</th><td>기어(P, R, N, D), 브레이크 페달, 누적 주행 거리, 조향각, 핸들 열선</td></tr>
+            <tr><th scope="row">ADAS</th><td>크루즈 제어 상태, 크루즈 목표 속도</td></tr>
+            <tr><th scope="row">Convenience</th><td>도어 위치·잠금, 트렁크, 실내등·독서등, 앰비언트 밝기·색상, 외부 조명, 방향지시등, 창문 위치·잠금, 좌석 탑승 상태, 와이퍼, 글로브박스, 하이패스 시나리오</td></tr>
+            <tr><th scope="row">Safety</th><td>주차 브레이크, 안전벨트, ABS, TPMS 등 경고등의 꺼짐·켜짐·점멸</td></tr>
+            <tr><th scope="row">Energy</th><td>주행 가능 거리, 배터리 에너지·충전율·용량, 충전 전류 제한, 목표 충전량, 충전 스위치, 충전 포트</td></tr>
+            <tr><th scope="row">Climate</th><td>공조 전원, 에어컨, 오토, 듀얼, 내기순환, 풍량, 풍향, 성에 제거, 목표 온도, 시트 열선·통풍, 공기청정</td></tr>
+            <tr><th scope="row">Vehicle</th><td>차량 알림 표시·숨김</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p style="margin-top:10px;font-size:.92rem;color:var(--ink-2)">이 밖에 화면 크기·해상도 변화를 검증하는 폼팩터 테스트 기능과, 도메인별 API를 눌러 보며 익히는 Vehicle SDK Sample App이 제공됩니다.</p>
+    </section>
+
+    <section id="ideas">
+      <span class="sec-no">11</span>
+      <h2 class="sec">공모 분야별 SDK 조합 예시</h2>
+      <p class="lead">공식 홈페이지가 예시로 든 네 가지 분야에 대해, 공개 SDK로 구현 가능한 조합을 정리했습니다. 주제 제한은 없고 자유 출품이 가능합니다. 조합은 이 문서의 해석입니다. <span class="b e">추정</span></p>
+      <div class="grid g2">
+        <div class="card">
+          <h4>모빌리티 &amp; 라이프 편의</h4>
+          <p>충전·주유, 주차, 유지비 관리, 픽업 같은 이동 전후의 일.</p>
+          <ul class="tight">
+            <li>EvBattery·Fuel·Odometer로 잔량, 효율, 주행 거리 수집</li>
+            <li>NaviHelper로 목적지·경유지 추가, 충전 사업자 정보 조회</li>
+            <li>FusedLocation 영역 알림으로 특정 장소 도착 시 동작</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h4>인카 엔터테인먼트</h4>
+          <p>이동 시간을 채우는 콘텐츠. 주행 중 동영상은 제한되므로 오디오 중심이 유리합니다.</p>
+          <ul class="tight">
+            <li>FusedLocation·NaviHelper로 위치와 남은 시간에 맞춘 콘텐츠 구성</li>
+            <li>TTS로 낭독, STT로 음성 응답 받기</li>
+            <li>Light로 앰비언트 라이트 색상·밝기 연출</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h4>스마트 드라이빙 &amp; 안전</h4>
+          <p>운전 습관 분석, 경고 해설, 휴식 안내.</p>
+          <ul class="tight">
+            <li>Safety 경고등, Brake, 조향각, 방향지시등, 크루즈 상태 구독</li>
+            <li>AAOS 표준 속성으로 차량 속도 조회</li>
+            <li>NaviHelper의 제한 속도, 단속 카메라, 주의 지점 이벤트</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h4>패밀리 &amp; 동승자 케어</h4>
+          <p>아이, 노약자, 반려동물과 함께 타는 상황.</p>
+          <ul class="tight">
+            <li>Seat의 착좌 여부·안전벨트 체결, Door 열림 상태 감지</li>
+            <li>HVAC, Window 블라인드, Light 제어로 실내 환경 조정</li>
+            <li>TTS 오디오 구역 지정으로 좌석별 안내</li>
+          </ul>
+        </div>
+      </div>
+      <div class="note">
+        <strong>공식 홈페이지의 예시 시나리오 세 가지</strong>
+        음성 메모 앱(SpeechToText SDK), 안전운전 점수 앱(Vehicle SDK의 차량 상태 데이터), 배달 기사용 앱(NaviHelper SDK 경로 안내 연동). 공식 튜토리얼도 안전운전 점수 앱을 다루므로 이 세 가지는 차별화가 어려운 출발점입니다. <span class="b v">검증됨</span> / 차별화 판단은 <span class="b e">추정</span>
+      </div>
+    </section>
+
+    <section id="prior">
+      <span class="sec-no">12</span>
+      <h2 class="sec">선행 사례</h2>
+      <p class="lead">같은 해에 현대차·기아가 연 두 행사에서 나온 결과물입니다. 기 발표된 타 공모전 수상작과 표절작은 심사에서 제외되므로, 겹치지 않는지 확인하는 용도로 봐야 합니다. <span class="b v">검증됨</span></p>
+      <div class="grid g2">
+        <div class="card">
+          <h4>사내 해커톤 "24H 코드 레이스" (2026년 8월)</h4>
+          <p>판교에서 25개 팀, 100여 명이 무박 2일로 프로토타입을 만들었습니다. 주제는 안전, 헬스케어, 엔터테인먼트, 게이미피케이션이었고 평가 기준은 독창성, 고객가치, 시장성, 완성도였습니다.</p>
+          <ul class="tight">
+            <li><strong>대상</strong> 테일싱크(TaleSync): 실시간 주행 데이터와 아이의 반응을 연동해 도착 시점에 이야기가 끝나는 오디오 스토리</li>
+            <li><strong>우수상</strong> 아기 꿀잠 드라이브, 마중, 액시트(AcciT)</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h4>플레오스 커넥트 앱 아이디어 공모전 (2026년 6~7월)</h4>
+          <p>부산모빌리티쇼 관람객 대상으로 약 3,600건이 접수되어 16건이 뽑혔습니다. 배점은 창의성 50%, 실현 가능성 30%, 공감도 20%였습니다.</p>
+          <ul class="tight">
+            <li><strong>대상</strong> 창밖동화: 위치 정보와 생성형 AI로 경로 기반 동화·퀴즈 제공</li>
+            <li><strong>안전·소통</strong> car톡, 도로 보안관, 구덩이조심, 마! 어데고!, 로드시그널</li>
+            <li><strong>가족·여행</strong> 길찾기 대모험, 아그들아 여행가자!, 로컬미션, 카-케스트라 비트파티</li>
+            <li><strong>관리·편의</strong> 차마고치, 차계부, 여기서 타!, (현)대신 웨이팅, 캐시 드라이브</li>
+          </ul>
+        </div>
+      </div>
+      <div class="note warn">
+        <strong>읽어낼 수 있는 점</strong>
+        아이디어 공모전 우수작 16건 중 12건이 글레오 AI와 내비게이션을 활용했습니다. 그런데 이번 공모전은 LLM SDK와 Gleo AI 연동을 쓸 수 없습니다. 생성형 AI에 기대는 아이디어는 그대로 구현할 수 없고, 아이·가족 대상 위치 기반 스토리는 두 행사에서 모두 대상을 받아 이미 선점된 주제입니다. <span class="b e">추정</span>
+      </div>
+    </section>
+
+    <section id="risks">
+      <span class="sec-no">13</span>
+      <h2 class="sec">확인이 필요한 사항</h2>
+      <p class="lead">공식 자료끼리 표현이 다르거나, 자료에 적혀 있지 않은 부분입니다.</p>
+      <div class="tw">
+        <table>
+          <thead><tr><th scope="col">항목</th><th scope="col">내용</th><th scope="col">상태</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">개발 산출물 필수 여부</th><td>공고·공지는 "선택(가산점)"이라고 하고, 개요 페이지는 "1차 합격자는 2차 PT 전까지 제출 필수"라고 적음. 1차는 선택이고 합격 후에는 필수라는 뜻으로 읽힘</td><td><span class="b e">추정</span></td></tr>
+            <tr><th scope="row">주최 표기</th><td>보도자료는 "현대차·기아", 공모전 홈페이지와 포스터는 "현대자동차그룹". 동의서의 개인정보 처리 주체는 현대자동차 주식회사, 운영 수탁사는 주식회사 스터닝</td><td><span class="b v">검증됨</span></td></tr>
+            <tr><th scope="row">2차 PT 심사 기준</th><td>"추후 안내 예정". 발표 시간·형식·장비는 본선 진출팀에 별도 안내</td><td><span class="b u">미확인</span></td></tr>
+            <tr><th scope="row">세부 배점</th><td>비공개. 가산점의 점수 값도 공개하지 않음</td><td><span class="b u">미확인</span></td></tr>
+            <tr><th scope="row">개발 프레임워크</th><td>개발 환경은 "Java 또는 Kotlin"으로 안내. Flutter, React Native, WebView 기반 앱의 허용 여부는 명시 없음</td><td><span class="b u">미확인</span></td></tr>
+            <tr><th scope="row">참가 제한</th><td>미성년자, 외국인, 중복 지원, 기존 출시 앱 출품, AI 생성물 사용에 대한 규정 명시 없음</td><td><span class="b u">미확인</span></td></tr>
+            <tr><th scope="row">설명회 다시보기</th><td>"제공 예정"으로 공지. 홈페이지에 다시보기 이미지가 있으나 링크 주소는 확인하지 못함</td><td><span class="b u">미확인</span></td></tr>
+            <tr><th scope="row">SDK 버전 표기</th><td>릴리스 노트는 Vehicle SDK v2.3.2, 시작 가이드의 의존성 예시는 2.3.1</td><td><span class="b v">검증됨</span></td></tr>
+            <tr><th scope="row">에뮬레이터에서의 실제 동작 범위</th><td>FusedLocation, NaviHelper, 서버 모드 음성이 에뮬레이터에서 어디까지 동작하는지는 문서에 명시 없음. 직접 실행해 확인 필요</td><td><span class="b u">미확인</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="checklist">
+      <span class="sec-no">14</span>
+      <h2 class="sec">마감까지 체크리스트</h2>
+      <p class="lead">공식 요구 사항에서 뽑은 항목입니다. 체크 상태는 이 브라우저에만 저장됩니다.</p>
+      <div class="card">
+        <ul class="check" id="cl">
+          <li><label><input type="checkbox" data-k="form"><span>접수양식 DOCX 내려받기<small>공식 홈페이지 "지원·제출 방법" 페이지</small></span></label></li>
+          <li><label><input type="checkbox" data-k="team"><span>참가 단위(개인/팀)와 부문(대학(원)생/일반) 결정<small>팀은 대표자 포함 최대 5인</small></span></label></li>
+          <li><label><input type="checkbox" data-k="plan"><span>기획서 1~6번 항목 작성<small>02 영역에는 성명·연락처·소속을 적지 않음</small></span></label></li>
+          <li><label><input type="checkbox" data-k="sdk"><span>5번 개발 계획에 사용할 SDK/API를 공개 문서 범위 안에서 구체적으로 명시<small>LLM SDK, Gleo Interface는 "향후 계획"으로만 기재 가능</small></span></label></li>
+          <li><label><input type="checkbox" data-k="sign"><span>팀원 전원의 개인정보 동의 여부 표시, 서명, 서명일자 수집<small>전자서명·서명 이미지 인정</small></span></label></li>
+          <li><label><input type="checkbox" data-k="bonus"><span>(선택) 시연 영상, GitHub 저장소, APK 준비<small>저장소 주소와 최종 커밋 해시를 메일에 기재</small></span></label></li>
+          <li><label><input type="checkbox" data-k="send"><span>11.15(일) 23:59 전에 메일 발송, 팀원 전원 참조(CC)<small>제목: [차량용 앱 개발 공모전] 팀명(개인은 성명)_대표자명</small></span></label></li>
+          <li><label><input type="checkbox" data-k="public"><span>(저장소 제출 시) 11.16(월)까지 공개 전환, 11.23까지 유지</span></label></li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="sources">
+      <span class="sec-no">15</span>
+      <h2 class="sec">출처</h2>
+      <p class="lead">2026년 11월 11일에 직접 읽은 자료입니다.</p>
+      <ul class="src">
+        <li><a href="https://www.hyundaimotorgroup.com/ko/news/hyundai-motor-company-kia-vehicle-app-development-contest">현대차·기아, 차량용 앱 개발 공모전 개최</a> — 현대자동차그룹 뉴스룸, 2026-10-21</li>
+        <li><a href="https://appdevchallenge.auto-hmg.io">공모전 공식 홈페이지</a> — 참가 가이드(개요, 일정, 심사·시상, 지원·제출, 개발 환경, 참가 규정, 숏폼), FAQ, 공지사항 5건, 접수양식 DOCX, 포스터</li>
+        <li><a href="https://document.pleos.ai/docs/pleos-only/getting-started">Pleos Connect 앱 개발 시작하기</a> — Pleos 개발 문서</li>
+        <li><a href="https://document.pleos.ai/docs/pleos-only/connect-sdk-pleos/">Pleos Connect SDK 개요</a>와 SDK별 소개·API 레퍼런스(Vehicle, NaviHelper, SpeechToText, TextToSpeech, FusedLocation)</li>
+        <li><a href="https://document.pleos.ai/docs/pleos-only/vehicle-app-planning-guide/intro">앱 기획·설계 가이드</a> — 앱 카테고리, 주행 안전 설계, 지역별 주행 규제 정책, 앱 구조 및 동작 모델, 하드웨어 접근 정책, 성능·보안 설계</li>
+        <li><a href="https://document.pleos.ai/docs/connect/guide/docs-design/getting-started/layout">디자인 가이드</a> — Display Layout, Window Policy</li>
+        <li><a href="https://document.pleos.ai/docs/pleos-only/app-test-guide/virtual-console-guide">Pleos Connect Virtual Console 사용 가이드</a>, <a href="https://document.pleos.ai/docs/connect/guide/getting-started/application-development/setup-connect-sdk-emulator">에뮬레이터 설치 및 실행</a></li>
+        <li><a href="https://document.pleos.ai/docs/pleos-only/release-note/sdk-release-note">SDK 릴리스 노트</a>, <a href="https://document.pleos.ai/docs/pleos-only/release-note/emulator-release-note">에뮬레이터 릴리스 노트</a> — 2026-10-19</li>
+        <li><a href="https://pleos.ai/playground">Pleos Playground</a> — 개발자 포털</li>
+        <li><a href="https://www.hyundaimotorgroup.com/ko/story/CONT0000000000173173">개발자에게 열린 무한한 가능성, Pleos 25 현장에 가다</a> — 2025-04-09</li>
+        <li><a href="https://www.hyundaimotorgroup.com/ko/news/hyundai-motor-company-kia-24h-code-race-hackathon">사내 해커톤 "24H 코드 레이스" 성료</a> — 2026-08-24</li>
+        <li><a href="https://www.hyundaimotorgroup.com/ko/story/hyundai-motor-company-pleos-connect-app-idea-contest">고객의 상상으로 만드는 차 안의 앱, 플레오스 커넥트 공모전</a> — 2026-10-08</li>
+      </ul>
+    </section>
+
+  </main>
+</div>
+
+<footer>
+  비공식 리서치 문서 · 조사 기준일 2026-11-11 · 일정과 규정은 공식 홈페이지 공지사항이 우선합니다.
+</footer>
+
+<script>
+(function(){
+  // 한국 표준시 기준 오늘 날짜(YYYY-MM-DD)
+  function kstToday(){
+    try{
+      return new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Seoul',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
+    }catch(e){ return new Date().toISOString().slice(0,10); }
+  }
+  var today = kstToday();
+  var DEADLINE_DAY = '2026-11-15';
+  var DEADLINE_AT = Date.parse('2026-11-15T23:59:00+09:00');
+  var MS_DAY = 86400000;
+
+  // D-day 표시
+  var el = document.getElementById('dday');
+  var diff = Math.round((Date.parse(DEADLINE_DAY+'T00:00:00Z') - Date.parse(today+'T00:00:00Z'))/MS_DAY);
+  if (Date.now() > DEADLINE_AT) el.textContent = '접수 마감';
+  else if (diff === 0) el.textContent = 'D-DAY';
+  else el.textContent = 'D-' + diff;
+
+  // 일정 상태 표시: 지난 일정은 done, 다가오는 첫 일정은 next
+  var items = document.querySelectorAll('#timeline li');
+  var marked = false;
+  items.forEach(function(li){
+    var d = li.getAttribute('data-date');
+    if (d < today){ li.classList.add('done'); }
+    else if (!marked){
+      li.classList.add('next'); marked = true;
+      var tag = document.createElement('span'); tag.className = 'b in tag'; tag.textContent = '다음 일정';
+      li.querySelector('.t').appendChild(tag);
+    }
+  });
+
+  // Vehicle SDK 도메인 필터
+  var rows = Array.prototype.slice.call(document.querySelectorAll('#dom tbody tr[data-c]'));
+  var emptyRow = document.getElementById('dom-empty');
+  var chips = Array.prototype.slice.call(document.querySelectorAll('.chip'));
+  var q = document.getElementById('q');
+  var cnt = document.getElementById('cnt');
+  var mode = 'all';
+  function apply(){
+    var kw = q.value.trim().toLowerCase();
+    var n = 0;
+    rows.forEach(function(r){
+      var c = r.getAttribute('data-c');
+      var okMode = mode === 'all' || (mode === 'ctl' && c === '1') || (mode === 'ro' && c === '0');
+      var okKw = !kw || r.textContent.toLowerCase().indexOf(kw) !== -1;
+      var show = okMode && okKw;
+      r.hidden = !show;
+      if (show) n++;
+    });
+    emptyRow.hidden = n !== 0;
+    cnt.textContent = n + '개 도메인';
+  }
+  chips.forEach(function(b){
+    b.addEventListener('click', function(){
+      mode = b.getAttribute('data-f');
+      chips.forEach(function(x){ x.setAttribute('aria-pressed', x === b ? 'true' : 'false'); });
+      apply();
+    });
+  });
+  q.addEventListener('input', apply);
+  apply();
+
+  // 체크리스트 저장(브라우저 로컬)
+  var KEY = 'contest-checklist-v1';
+  var state = {};
+  try{ state = JSON.parse(localStorage.getItem(KEY) || '{}') || {}; }catch(e){ state = {}; }
+  document.querySelectorAll('#cl input').forEach(function(i){
+    var k = i.getAttribute('data-k');
+    i.checked = !!state[k];
+    i.addEventListener('change', function(){
+      state[k] = i.checked;
+      try{ localStorage.setItem(KEY, JSON.stringify(state)); }catch(e){}
+    });
+  });
+
+  // 가로로 넘치는 표는 키보드로도 스크롤할 수 있게 한다
+  document.querySelectorAll('.tw').forEach(function(w){
+    if (w.scrollWidth > w.clientWidth){
+      var sec = w.closest('section');
+      var h = sec ? sec.querySelector('h2') : null;
+      w.setAttribute('tabindex', '0');
+      w.setAttribute('role', 'region');
+      w.setAttribute('aria-label', (h ? h.textContent : '') + ' 표, 가로 스크롤 가능');
+    }
+  });
+
+  // 목차 현재 위치 표시
+  var links = Array.prototype.slice.call(document.querySelectorAll('.toc a'));
+  var map = {};
+  links.forEach(function(a){ map[a.getAttribute('href').slice(1)] = a; });
+  if ('IntersectionObserver' in window){
+    var io = new IntersectionObserver(function(es){
+      es.forEach(function(e){
+        if (e.isIntersecting){
+          links.forEach(function(a){ a.classList.remove('on'); });
+          var a = map[e.target.id];
+          if (a){
+            a.classList.add('on');
+            var ol = a.closest('ol');
+            if (ol && ol.scrollWidth > ol.clientWidth){ ol.scrollTo({left: a.offsetLeft - 16, behavior: 'auto'}); }
+          }
+        }
+      });
+    }, {rootMargin: '-20% 0px -70% 0px'});
+    document.querySelectorAll('main section').forEach(function(s){ io.observe(s); });
+  }
+})();
+</script>
+</body>
+</html>

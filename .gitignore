@@ -1,2 +1,4 @@
 # 로컬 도구 상태 (공개 저장소에 올리지 않음)
 .bkit/
+.omc/
+.playwright-mcp/
