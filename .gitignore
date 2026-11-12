@@ -3,3 +3,9 @@
 .omc/
 .playwright-mcp/
 .impeccable/
+.fablize/
+.serena/
+.thoughts/
+
+# 파이썬 캐시
+__pycache__/
